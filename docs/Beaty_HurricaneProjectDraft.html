@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Hurricane Impacts on the Louisiana Coast</title>
+<style>
+    html, 
+    body, 
+    #viewDiv{
+        padding:0;
+        margin:0;
+        height:100%;
+        width:100%;
+    }
+</style>
+    
+<link rel="stylesheet" href="https://js.arcgis.com/4.17/esri/css/main.css">
+    
+<script src="https://js.arcgis.com/4.17/">
+</script>
+    
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/config",
+            "esri/layers/FeatureLayer",
+            "esri/layers/VectorTileLayer",
+            "esri/layers/CSVLayer",
+            "esri/symbols/SimpleFillSymbol",
+            "esri/renderers/SimpleRenderer",
+            "esri/renderers/visualVariables/ColorVariable",
+            "dojo/domReady!"
+        ], function (Map, MapView, esriConfig, FeatureLayer, VectorTileLayer, CSVLayer, SimpleFillSymbol, SimpleRenderer, ColorVariable)
+            {
+                var myMap = new Map();
+                
+                var myView = new MapView({
+                container: "viewDiv",
+                map: myMap,
+                center: [-91.147385, 30.471165],
+                scale: 2400000
+            });
+            
+                var myBasemap = new VectorTileLayer({
+                    url: "https://arts-sciences.maps.arcgis.com/sharing/rest/content/items/99ff5ed6861a477bb65843235cdefe10/resources/styles/root.json?f=pjson"
+            });
+            
+            myMap.add(myBasemap);
+            
+                var cntSymbol = new SimpleFillSymbol({
+                    outline: {
+                        style: "solid",
+                        color: "white"
+            }
+            });
+            
+                var cntRenderer = new SimpleRenderer({
+                    symbol: cntSymbol
+            });
+            
+                var counties1 = new FeatureLayer({
+                    url: "https://tigerweb.geo.census.gov/arcgis/rest/services/Census2010/State_County/MapServer/13",
+                    renderer: cntRenderer,
+                    opacity: 0.7,
+            });
+            
+            myMap.add(counties1);
+            
+                var IncomePerCapita = new CSVLayer({
+                    url: "https://dl.dropboxusercontent.com/s/yihvyzziif0as25/download.csv?dl=0"
+             });
+            
+             const colorVisVar = {
+                type: "color",
+                field: "Unemployment",
+                stops: [
+                    {value: 1, color: "white"},
+                    {value: 3, color: "smokewhite"},
+                    {value: 5, color: "gray"},
+                    {value: 7, color: "dark-gray"},
+                    {value: 9, color: "black"}
+                ]
+            };
+            
+            esriConfig.request.corsEnabledServers.push(IncomePerCapita);
+            
+            myMap.add(IncomePerCapita);
+            
+                var UnemploymentRates = new CSVLayer({
+                    url: "https://dl.dropboxusercontent.com/s/o708avjg51r9vt2/ACSDP5Y2018.DP03-2020-12-04T185429.csv?dl=0"
+            });
+            
+            esriConfig.request.corsEnabledServers.push(UnemploymentRates);
+            
+            myMap.add(UnemploymentRates);
+            
+                var cyclones = new CSVLayer({
+                    url: "https://dl.dropboxusercontent.com/s/hqg735xjm693hnb/ibtracs.NA.list.v04r00.csv?dl=0"
+            });
+            
+            esriConfig.request.corsEnabledServers.push(cyclones);
+            
+            myMap.add(cyclones);
+            
+            });
+    </script>
+</head>
+<body>
+
+<div id="viewDiv"></div>
+
+</body>
+</html>
